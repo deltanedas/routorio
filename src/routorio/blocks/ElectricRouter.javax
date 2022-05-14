@@ -1,12 +1,20 @@
 package routorio.blocks;
 
+import arc.*;
 import arc.math.*;
+import arc.scene.style.*;
+import arc.scene.ui.layout.*;
+import arc.util.io.*;
 import mindustry.*;
 import mindustry.gen.*;
 import mindustry.type.*;
+import mindustry.ui.*;
 import mindustry.world.blocks.distribution.*;
 
 public class ElectricRouter extends DuctRouter {
+	// lower 13 bits
+	private static short maxNumber = 0x1fff;
+
 	private Drawable background;
 	private Drawable[] modeButtons, opButtons;
 
@@ -43,41 +51,38 @@ public class ElectricRouter extends DuctRouter {
 		};
 	}
 
-	private static void drawable(String name) {
+	private static Drawable drawable(String name) {
 		return new TextureRegionDrawable(Core.atlas.find(name));
 	}
 
 	public class ElectricRouterBuild extends DuctRouterBuild {
-		// lower 13 bits
-		private static short maxNumber = 0x1fff;
-
 		private byte mode = 0;
 		private byte operation = 0;
 		private short number = maxNumber;
 
 		private boolean active() {
 			short other = (short) getPowerValue();
-			return switch operation {
-				0b00 -> other == number,
-				0b01 -> other != number,
-				0b10 -> other > number,
-				0b11 -> other < number,
-			}
+			return switch (operation) {
+				case 0b00 -> other == number;
+				case 0b01 -> other != number;
+				case 0b10 -> other > number;
+				case 0b11 -> other < number;
+			};
 		}
 
 		private float getPowerValue() {
 			return mode == 0
-				? this.power.status * maxNumber
-				: this.power.graph.powerBalance * 60f;
+				? power.status * maxNumber
+				: power.graph.getPowerBalance() * 60f;
 		}
 
 		private void load(short raw) {
 			// upper bit is mode
-			mode = raw >> 15;
+			mode = (byte) (raw >> 15);
 			// next 2 bits are op
-			operation = (raw >> 13) & 0b11;
+			operation = (byte) ((raw >> 13) & 0b11);
 			// lower 13 bits are the number
-			number = raw & maxNumber;
+			number = (short) (raw & maxNumber);
 		}
 
 		@Override
@@ -93,32 +98,32 @@ public class ElectricRouter extends DuctRouter {
 			table.background(background);
 
 			// Cycle through modes
-			var modeb = table.button(modeButtons[mode], Style.cleari, () -> {
-				mode = (mode + 1) % 2;
+			var modeb = table.button(modeButtons[mode], Styles.cleari, () -> {
+				mode = (byte) ((mode + 1) % 2);
 				modeb.style.imageUp = modeButtons[mode];
 				configure(config());
 			}).size(40).get();
 
 			// Cycle through operations
-			var opb = table.button(opButtons[operation], Style.cleari, () -> {
-				operation = (operation + 1) % 4;
+			var opb = table.button(opButtons[operation], Styles.cleari, () -> {
+				operation = (byte) ((operation + 1) % 4);
 				opb.style.imageUp = opButtons[operation];
 				configure(config());
 			}).size(40).get();
 
-			var numberf = table.field(number.toString(), text -> {
+			var numberf = table.field(String.valueOf(number), text -> {
 				try {
-					short set = Short.parseInt();
+					int set = Integer.parseInt(text);
 					set = Mathf.clamp(0, set, maxNumber);
 					numberf.text = set.toString();
-					number = set;
+					number = (short) set;
 					configure(config());
-				} catch (...) {}
+				} catch (Exception e) {}
 			}).width(120).get();
 		}
 
 		@Override
-		public short config() {
+		public Short config() {
 			return ((short) mode) << 15
 				| ((short) operation) << 13
 				| number;

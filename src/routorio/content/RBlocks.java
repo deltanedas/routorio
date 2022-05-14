@@ -5,6 +5,7 @@ import routorio.blocks.*;
 import mindustry.content.*;
 import mindustry.type.*;
 import mindustry.world.*;
+import mindustry.world.blocks.production.*;
 
 import static mindustry.type.ItemStack.*;
 
@@ -34,17 +35,17 @@ public class RBlocks {
 
 	public static void load() {
 		// power
-		electricRouter = new ElectricRouter("electric-router") {{
+		/*electricRouter = new ElectricRouter("electric-router") {{
 			requirements(Category.power, with(Items.beryllium, 10, Items.tungsten, 15, Items.silicon, 10));
-		}};
+		}};*/
 
 		magnetRouter = new MagnetRouter("magnet-router") {{
-			requirements(Category.power, with(Items.silicon, 40, Items.carbide, 10));
+			requirements(Category.power, with(Items.silicon, 40, Items.oxide, 10));
 			health = 600;
 			speed = 4f;
 			regionRotated1 = 1;
 			solid = false;
-			researchCost = with(Items.silicon, 120, Items.carbide, 30);
+			researchCost = with(Items.silicon, 120, Items.oxide, 30);
 
 			sparkChance = 0.1f;
 			hasPower = true;

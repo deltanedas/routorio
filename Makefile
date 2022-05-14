@@ -9,7 +9,7 @@ override JAVACFLAGS += -sourcepath src
 # Add .jar libraries
 override JAVACFLAGS += -classpath "libs/*"
 # fuck android all my homies hate android
-override JAVACFLAGS += --release 14
+override JAVACFLAGS += --release 17
 
 JARFLAGS := -C build/classes .
 override JARFLAGS += -C assets .

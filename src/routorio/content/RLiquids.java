@@ -17,6 +17,6 @@ public class RLiquids {
 			heatCapacity = 0.1f;
 			temperature = 3.0f;
 			viscosity = 0.2f;
-		}}
+		}};
 	}
 }
